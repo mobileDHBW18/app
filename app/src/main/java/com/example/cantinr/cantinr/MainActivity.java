@@ -1,5 +1,6 @@
 package com.example.cantinr.cantinr;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -14,13 +15,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
-
+    Intent intentCity;
+    Intent intentMensa;
+    Intent intentMain;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +32,9 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Mensaria Metropol");
-
+        intentMain = getIntent();
+        intentCity = new Intent(this, CitySelectActivity.class);
+       intentMensa = new Intent(this, MensaSelectActivity.class);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,10 +99,16 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_city) {
             // Handle the camera action
+            //Toast.makeText(MainActivity.this, "Time for an upgrade!", Toast.LENGTH_SHORT).show();
+            startActivity(intentCity);
+
         } else if (id == R.id.nav_mensa) {
+            //Toast.makeText(MainActivity.this, "Jasmin", Toast.LENGTH_SHORT).show();
+           startActivity(intentMensa);
 
         } else if (id == R.id.nav_last) {
-
+            //Toast.makeText(MainActivity.this, "Here!", Toast.LENGTH_SHORT).show();
+            
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
