@@ -2,6 +2,7 @@
 
     xmlns:android="http://schemas.android.com/apk/res/android"
 
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
 
     android:id="@+id/drawer_layout"
@@ -11,48 +12,121 @@
     android:layout_height="match_parent">
 
 
-
     <!-- The first child in the layout is for the main Activity UI-->
 
-    <RelativeLayout
-
+    <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-
         android:layout_height="match_parent"
-
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-
-        android:paddingRight="@dimen/activity_horizontal_margin"
-
-        android:paddingTop="@dimen/activity_vertical_margin"
-
-        android:paddingBottom="@dimen/activity_vertical_margin"
-
-        tools:context=".MainActivity"
-
-        android:background="#ffffffff">
-
+        tools:context=".MainActivity">
 
 
         <TextView
+
+            android:id="@+id/textView3"
 
             android:layout_width="wrap_content"
 
             android:layout_height="wrap_content"
 
-            android:layout_centerHorizontal="true"
-
-            android:text="Holy Operating Systems, Batdroid!"
-
-            android:textSize="24sp"
-
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginBottom="8dp"
             android:gravity="center"
+            android:text="Bitte schieß ein Foto von deinem Gericht"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/imageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-            android:layout_marginTop="100dp"/>
+        <Button
+            android:id="@+id/bt_photo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView3"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="76dp"
+            android:layout_marginEnd="24dp"
+            android:onClick="onPhotoClick"
+            android:text="Foto Start"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/button3" />
 
+        <Button
+            android:id="@+id/button3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/bt_photo"
+            android:layout_marginBottom="76dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="23dp"
+            android:onClick="onPhotoEnd"
+            android:text="Foto Ende"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/bt_photo" />
 
-    </RelativeLayout>
+        <Button
+            android:id="@+id/button4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignTop="@+id/bt_photo"
+            android:layout_marginBottom="76dp"
+            android:layout_marginEnd="34dp"
+            android:layout_marginStart="16dp"
+            android:onClick="photoShot"
+            android:text="Foto"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/bt_photo"
+            app:layout_constraintStart_toStartOf="parent" />
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/camera"
+            android:layout_alignEnd="@+id/bt_photo"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="138dp"
+            android:layout_marginStart="138dp"
+            android:layout_marginTop="7dp"
+            app:layout_constraintBottom_toTopOf="@+id/bt_photo"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView3"
+            app:srcCompat="@drawable/ic_launcher_background" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="16dp"
+            android:layout_marginBottom="28dp"
+            android:layout_marginEnd="328dp"
+            android:layout_marginStart="328dp"
+            android:layout_marginTop="20dp"
+            android:src="@drawable/ic_menu_camera"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/button4" />
+
+        <com.wonderkiln.camerakit.CameraView
+            android:id="@+id/camera"
+            android:layout_width="382dp"
+            android:layout_height="177dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="8dp"
+            android:adjustViewBounds="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
 
 
     <!-- Side navigation drawer UI -->
@@ -67,8 +141,7 @@
 
         android:layout_gravity="left|start"
 
-        android:background="#ffeeeeee"/>
-
+        android:background="#ffeeeeee" />
 
 
 </android.support.v4.widget.DrawerLayout>
