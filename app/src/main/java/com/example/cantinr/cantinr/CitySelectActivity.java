@@ -29,8 +29,8 @@ public class CitySelectActivity extends AppCompatActivity implements NavigationV
         setContentView(R.layout.activity_city_select);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarCity);
         toolbar.setTitle("Mensaria Metropol");
-        intentMain = new Intent(this, CitySelectActivity.class);
-        intentCity = getIntent();
+        intentMain = new Intent(this, MainActivity.class);
+        intentCity = new Intent(this, CitySelectActivity.class);
         intentMensa = new Intent(this, MensaSelectActivity.class);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layoutCity);

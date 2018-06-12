@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
-    ImageView image;
+    Intent inPhoto;
+   // ImageView image;
     Button photo;
     CameraView cameraView;
     @Override
@@ -47,12 +48,13 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         setTitle("Mensaria Metropol");
         intentMain = getIntent();
-        image = findViewById(R.id.imageView);
+       // image = findViewById(R.id.imageView);
         intentCity = new Intent(this, CitySelectActivity.class);
-       intentMensa = new Intent(this, MensaSelectActivity.class);
-        photo = findViewById(R.id.bt_photo);
-        cameraView = (CameraView) findViewById(R.id.camera);
-        cameraView.addCameraKitListener(this);
+        inPhoto = new Intent(this, PhotoActivity.class);
+        intentMensa = new Intent(this, MensaSelectActivity.class);
+       // photo = findViewById(R.id.bt_photo);
+        //cameraView = (CameraView) findViewById(R.id.camera);
+       // cameraView.addCameraKitListener(this);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -69,7 +71,8 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cameraView.captureImage();
+                //cameraView.captureImage();
+                startActivity(inPhoto);
             }
         });
 
@@ -89,15 +92,15 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void onPhotoClick(View aView){
-       cameraView.start();
+       //cameraView.start();
     }
 
     public void onPhotoEnd(View aView){
-        cameraView.stop();
+       // cameraView.stop();
     }
 
     public void photoShot(View aView){
-        cameraView.captureImage();
+       // cameraView.captureImage();
     }
 
 
@@ -172,10 +175,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onImage(CameraKitImage picture) {
-        picture.getJpeg();
-        Bitmap pic = picture.getBitmap();
-        Toast.makeText(MainActivity.this, "Here!", Toast.LENGTH_SHORT).show();
-        image.setImageBitmap(pic);
+       // picture.getJpeg();
+       // Bitmap pic = picture.getBitmap();
+      //  Toast.makeText(MainActivity.this, "Here!", Toast.LENGTH_SHORT).show();
+      //  image.setImageBitmap(pic);
     }
 
     @Override
