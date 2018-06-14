@@ -17,11 +17,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     private String[] titles = {"Hähnchenbrust mit",
             "Schweinebraten an", "Veggie-Burger"};
 
-    private String[] details = {"Kartoffelstampf und Bratensoße",
-            "Röstgemüse und Bratensoße", "American Style"};
+    private String[] details = {"Kartoffelstampf und Bratensoße, enthält Gluten und Schalenfrüchte",
+            "Röstgemüse und Bratensoße, enthält Erdnüsse", "American Style, vegan und laktosefrei"};
 
-    private int[] images = { R.drawable.ic_launcher_background,
-            R.drawable.ic_launcher_foreground, R.drawable.ic_launcher_background};
+    private int[] images = { R.drawable.img1,//R.drawable.ic_launcher_background,
+            R.drawable.img2, R.drawable.ic_launcher_background};
 
     class ViewHolder extends RecyclerView.ViewHolder{
 
