@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -31,12 +33,17 @@ import com.wonderkiln.camerakit.CameraView;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, CameraKitEventListener {
 
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    RecyclerView.Adapter adapter;
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
+
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
     Intent inPhoto;
+
    // ImageView image;
     Button photo;
     CameraView cameraView;
@@ -47,6 +54,16 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Mensaria Metropol");
+
+        recyclerView =
+                (RecyclerView) findViewById(R.id.recycler_view);
+
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        adapter = new RecyclerAdapter();
+        recyclerView.setAdapter(adapter);
+
         intentMain = getIntent();
        // image = findViewById(R.id.imageView);
         intentCity = new Intent(this, CitySelectActivity.class);
