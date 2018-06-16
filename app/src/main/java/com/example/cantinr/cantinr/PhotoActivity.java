@@ -29,6 +29,7 @@ import com.wonderkiln.camerakit.CameraView;
 public class PhotoActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, CameraKitEventListener {
 
+    //set up new branch
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
     Intent intentCity;
