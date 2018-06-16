@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.wonderkiln.camerakit.CameraKitError;
@@ -36,8 +37,12 @@ public class PhotoActivity extends AppCompatActivity
     Intent intentMensa;
     Intent intentMain;
     ImageView image;
-    Button photo;
+    Button bt_ok;
+    Button bt_back;
+    Button bt_new;
+    TextView tv_Action;
     CameraView cameraView;
+    FloatingActionButton fab;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,10 +52,16 @@ public class PhotoActivity extends AppCompatActivity
         setTitle("Knips ein Foto");
         intentMain = new Intent(this, MainActivity.class);
         image = findViewById(R.id.imageView);
+        image.setVisibility(View.GONE);
         intentCity = new Intent(this, CitySelectActivity.class);
         intentMensa = new Intent(this, MensaSelectActivity.class);
-
-        photo = findViewById(R.id.bt_photo);
+        tv_Action = findViewById(R.id.textView3);
+        bt_ok = findViewById(R.id.btOK);
+        bt_back = findViewById(R.id.button3);
+        bt_new = findViewById(R.id.button2);
+        bt_new.setVisibility(View.GONE);
+        bt_ok.setVisibility(View.INVISIBLE);
+        fab = findViewById(R.id.fab);
         cameraView = (CameraView) findViewById(R.id.camera);
         cameraView.addCameraKitListener(this);
 
@@ -74,6 +85,9 @@ public class PhotoActivity extends AppCompatActivity
             }
         });
 
+        //vorher in Kamera start
+        cameraView.start();
+        cameraView.setVisibility(View.VISIBLE);
 
     }
 
@@ -81,6 +95,12 @@ public class PhotoActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         //  cameraView.start();
+
+        //cameraView.start();
+        cameraView.setVisibility(View.VISIBLE);
+        bt_new.setVisibility(View.INVISIBLE);
+        bt_back.setVisibility(View.VISIBLE);
+        image.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -90,23 +110,39 @@ public class PhotoActivity extends AppCompatActivity
     }
 
     public void onPhotoClick(View aView){
-        cameraView.start();
-        cameraView.setVisibility(View.VISIBLE);
+       // cameraView.start();
+       // cameraView.setVisibility(View.VISIBLE);
     }
 
     public void onPhotoEnd(View aView){
-        cameraView.stop();
-        cameraView.setVisibility(View.INVISIBLE);
+        //cameraView.setVisibility(View.INVISIBLE);
+        //cameraView.stop();
+       // bt_new.setVisibility(View.INVISIBLE);
+       // bt_back.setVisibility(View.VISIBLE);
+       // image.setVisibility(View.INVISIBLE);
+        startActivity(intentMain);
     }
 
     public void photoShot(View aView){
+
         cameraView.captureImage();
+
     }
 
     public void photoOK(View aView){
         //upload photo now
         //after return to Start
         startActivity(intentMain);
+    }
+
+    public  void newPhoto(View aView){
+        image.setVisibility(View.INVISIBLE);
+        bt_back.setVisibility(View.VISIBLE);
+        bt_new.setVisibility(View.GONE);
+        bt_ok.setVisibility(View.GONE);
+        fab.setVisibility(View.VISIBLE);
+        cameraView.setVisibility(View.VISIBLE);
+        tv_Action.setText("Bitte knips ein Foto von deinem Gericht.");
     }
     private void addDrawerItems() {
         String[] osArray = { "Android", "iOS", "Windows", "OS X", "Linux", "FreeBSD" };
@@ -180,8 +216,17 @@ public class PhotoActivity extends AppCompatActivity
     public void onImage(CameraKitImage picture) {
         picture.getJpeg();
         Bitmap pic = picture.getBitmap();
-        Toast.makeText(this, "Wenn dir das Foto gefällt, kehre mit 'ok' zurück", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Wenn dir das Foto gefällt, kehre mit 'ok' zurück", Toast.LENGTH_SHORT).show();
         image.setImageBitmap(pic);
+        bt_back.setVisibility(View.GONE);
+        bt_new.setVisibility(View.VISIBLE);
+        image.setVisibility(View.VISIBLE);
+        bt_ok.setVisibility(View.VISIBLE);
+        cameraView.setVisibility(View.GONE);
+        fab.setVisibility(View.INVISIBLE);
+        tv_Action.setText("Wenn dir das Foto gefällt, teile es mit Klick auf 'ok'");
+
+
     }
 
     @Override
