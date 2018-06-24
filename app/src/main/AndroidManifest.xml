@@ -26,10 +26,10 @@
             android:theme="@android:style/Theme.Translucent" />
         <activity
             android:name=".CitySelectActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MensaSelectActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
@@ -40,8 +40,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".PhotoActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".PhotoActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".cardDetail" android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

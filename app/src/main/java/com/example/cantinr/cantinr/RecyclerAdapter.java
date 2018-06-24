@@ -1,5 +1,6 @@
 package com.example.cantinr.cantinr;
 
+import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.TextView;
  */
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
+
 
     private String[] titles = {"Hähnchenbrust mit",
             "Schweinebraten an", "Veggie-Burger"};
@@ -30,8 +32,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         public TextView itemTitle;
         public TextView itemDetail;
 
-        public ViewHolder(View itemView) {
+        Intent intentDetail;
+
+        public ViewHolder(final View itemView) {
             super(itemView);
+
+            intentDetail= new Intent(itemView.getContext(), cardDetail.class);
             itemImage = (ImageView)itemView.findViewById(R.id.item_image);
             itemTitle = (TextView)itemView.findViewById(R.id.item_title);
             itemDetail =
@@ -41,12 +47,16 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                 @Override public void onClick(View v) {
                     int position = getAdapterPosition();
 
+                    /*
                     Snackbar.make(v, "Click detected on item " + position,
                             Snackbar.LENGTH_LONG)
                             .setAction("Action", null).show();
-
+                    */
+                    intentDetail.putExtra("position",position);
+                    itemView.getContext().startActivity(intentDetail);
                 }
             });
+
         }
     }
 

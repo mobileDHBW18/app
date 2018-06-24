@@ -1,23 +1,24 @@
 package com.example.cantinr.cantinr;
 
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
@@ -26,51 +27,63 @@ import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
-public class PhotoActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, CameraKitEventListener {
+public class cardDetail extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
-    //set up new branch
+    Intent intent;
+    RecyclerView recyclerView;
+    RecyclerView.LayoutManager layoutManager;
+    RecyclerAdapterExpandable adapter;
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
+
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
-    ImageView image;
-    Button bt_ok;
-    Button bt_back;
-    Button bt_new;
-    TextView tv_Action;
+    Intent inPhoto;
+    //public Context cMain;
+    // ImageView image;
+    Button photo;
     CameraView cameraView;
-    FloatingActionButton fab;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_photo);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarPhoto);
-        setSupportActionBar(toolbar);
-        setTitle("Knips ein Foto");
-        intentMain = new Intent(this, MainActivity.class);
-        image = findViewById(R.id.imageView);
-        image.setVisibility(View.GONE);
-        intentCity = new Intent(this, CitySelectActivity.class);
-        intentMensa = new Intent(this, MensaSelectActivity.class);
-        tv_Action = findViewById(R.id.textView3);
-        bt_ok = findViewById(R.id.btOK);
-        bt_back = findViewById(R.id.button3);
-        bt_new = findViewById(R.id.button2);
-        bt_new.setVisibility(View.GONE);
-        bt_ok.setVisibility(View.INVISIBLE);
-        fab = findViewById(R.id.fab2);
-        cameraView = (CameraView) findViewById(R.id.camera);
-        cameraView.addCameraKitListener(this);
+        setContentView(R.layout.activity_card_detail);
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layoutPhoto);
+        intent = getIntent();
+        int pos;
+        pos = intent.getIntExtra("position", 0);
+        /*
+        String strPos = "Die aktuelle Karte ist " + pos;
+        Toast.makeText(this,strPos,
+                Toast.LENGTH_LONG).show();
+        */
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarDetail);
+        setSupportActionBar(toolbar);
+        setTitle("Gerichtdetails");
+
+        recyclerView =
+                (RecyclerView) findViewById(R.id.recycler_view);
+
+        layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        adapter = new RecyclerAdapterExpandable();
+        recyclerView.setAdapter(adapter);
+
+        intentMain = new Intent(this, MainActivity.class);
+        // image = findViewById(R.id.imageView);
+        intentCity = new Intent(this, CitySelectActivity.class);
+        inPhoto = new Intent(this, PhotoActivity.class);
+        intentMensa = new Intent(this, MensaSelectActivity.class);
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layoutDetail);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_viewPhoto);
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_viewDetail);
         navigationView.setNavigationItemSelectedListener(this);
 
         mDrawerList = (ListView)findViewById(R.id.navList);
@@ -80,69 +93,40 @@ public class PhotoActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cameraView.captureImage();
+                //cameraView.captureImage();
+                startActivity(inPhoto);
             }
         });
 
-        //vorher in Kamera start
-        cameraView.start();
-        cameraView.setVisibility(View.VISIBLE);
 
     }
 
-    @Override
-    protected void onResume() {
+        @Override
+        protected void onResume() {
         super.onResume();
         //  cameraView.start();
-
-        //cameraView.start();
-        cameraView.setVisibility(View.VISIBLE);
-        bt_new.setVisibility(View.INVISIBLE);
-        bt_back.setVisibility(View.VISIBLE);
-        image.setVisibility(View.INVISIBLE);
     }
 
-    @Override
-    protected void onPause() {
+        @Override
+        protected void onPause() {
         //  cameraView.stop();
         super.onPause();
     }
 
     public void onPhotoClick(View aView){
-       // cameraView.start();
-       // cameraView.setVisibility(View.VISIBLE);
+        //cameraView.start();
     }
 
     public void onPhotoEnd(View aView){
-        //cameraView.setVisibility(View.INVISIBLE);
-        //cameraView.stop();
-       // bt_new.setVisibility(View.INVISIBLE);
-       // bt_back.setVisibility(View.VISIBLE);
-       // image.setVisibility(View.INVISIBLE);
-        startActivity(intentMain);
+        // cameraView.stop();
     }
 
     public void photoShot(View aView){
-
-        cameraView.captureImage();
-
+        // cameraView.captureImage();
     }
 
-    public void photoOK(View aView){
-        //upload photo now
-        //after return to Start
-        startActivity(intentMain);
-    }
 
-    public  void newPhoto(View aView){
-        image.setVisibility(View.INVISIBLE);
-        bt_back.setVisibility(View.VISIBLE);
-        bt_new.setVisibility(View.GONE);
-        bt_ok.setVisibility(View.GONE);
-        fab.setVisibility(View.VISIBLE);
-        cameraView.setVisibility(View.VISIBLE);
-        tv_Action.setText("Bitte knips ein Foto von deinem Gericht.");
-    }
+
     private void addDrawerItems() {
         String[] osArray = { "Android", "iOS", "Windows", "OS X", "Linux", "FreeBSD" };
         mAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
@@ -196,40 +180,10 @@ public class PhotoActivity extends AppCompatActivity
             startActivity(intentMain);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layoutPhoto);
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layoutDetail);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    @Override
-    public void onEvent(CameraKitEvent cameraKitEvent) {
-
-    }
-
-    @Override
-    public void onError(CameraKitError cameraKitError) {
-
-    }
-
-    @Override
-    public void onImage(CameraKitImage picture) {
-        picture.getJpeg();
-        Bitmap pic = picture.getBitmap();
-        //Toast.makeText(this, "Wenn dir das Foto gefällt, kehre mit 'ok' zurück", Toast.LENGTH_SHORT).show();
-        image.setImageBitmap(pic);
-        bt_back.setVisibility(View.GONE);
-        bt_new.setVisibility(View.VISIBLE);
-        image.setVisibility(View.VISIBLE);
-        bt_ok.setVisibility(View.VISIBLE);
-        cameraView.setVisibility(View.GONE);
-        fab.setVisibility(View.INVISIBLE);
-        tv_Action.setText("Wenn dir das Foto gefällt, teile es mit Klick auf 'ok'");
-
-
-    }
-
-    @Override
-    public void onVideo(CameraKitVideo cameraKitVideo) {
-
-    }
 }
+
