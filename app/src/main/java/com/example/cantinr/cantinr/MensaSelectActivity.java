@@ -1,6 +1,9 @@
 package com.example.cantinr.cantinr;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -13,40 +16,117 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
+import com.amazonaws.mobileconnectors.apigateway.ApiRequest;
+import com.amazonaws.mobileconnectors.apigateway.ApiResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.transform.Result;
+
+import cantinrapi.DevcantinrClient;
 
 public class MensaSelectActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
             private ListView mDrawerList;
             private ArrayAdapter<String> mAdapter;
+            private ListView mensaListView;
+            private ArrayAdapter mensaListAdapter;
+            private DevcantinrClient client;
+            private String apiUrl;
+            Context context;
             Intent intentCity;
             Intent intentMensa;
             Intent intentMain;
             @Override
             protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_mensa_select);
-            Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarMensa);
-            toolbar.setTitle("Mensaria Metropol");
-            intentMain = new Intent(this, MainActivity.class);
-            intentCity = new Intent(this, CitySelectActivity.class);
-            intentMensa = new Intent(this, MensaSelectActivity.class);
+                super.onCreate(savedInstanceState);
+                setContentView(R.layout.activity_mensa_select);
+                context = this;
+                getSupportActionBar();
+                apiUrl = "https://api.cantinr.de/v1";
+                Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarMensa);
+                toolbar.setTitle("Wähle deine Mensa");
+                intentMain = new Intent(this, MainActivity.class);
+                intentCity = new Intent(this, CitySelectActivity.class);
+                intentMensa = new Intent(this, MensaSelectActivity.class);
+
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layoutMensa);
+                ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                        this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                drawer.addDrawerListener(toggle);
+                toggle.syncState();
+
+                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_viewMensa);
+                navigationView.setNavigationItemSelectedListener(this);
+
+                mDrawerList = (ListView)findViewById(R.id.navList);
+                addDrawerItems();
+
+                mensaListView = (ListView) findViewById(R.id.mensaListView);
+                ArrayList<String> list = new ArrayList<String>();
+                mensaListAdapter = new ArrayAdapter(this,
+                        android.R.layout.simple_list_item_1, list);
+                mensaListView.setAdapter(mensaListAdapter);
+
+                RequestQueue queue = Volley.newRequestQueue(context);
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, apiUrl + "/mensa",
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                try {
+                                    JSONArray array = new JSONArray(response);
+                                    System.out.println(response);
+                                    for (int i = 0; i < array.length(); i++){
+                                        String name = array.getJSONObject(i).get("name").toString();
+                                        System.out.println(name);
+                                        mensaListAdapter.add(name);
+                                        mensaListAdapter.notifyDataSetChanged();
+                                        System.out.println(mensaListAdapter.getItem(0));
+
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                });
+
+                // Add the request to the RequestQueue.
+                queue.add(stringRequest);
+
+                mensaListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        if (mensaListAdapter.getItem(position).toString() == "Mensaria Metropol") {
+                            startActivity(intentMain);
+                        } else {
+                            Toast.makeText(context, "Kommt bald...", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
 
 
-            DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layoutMensa);
-            ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                    this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-            drawer.addDrawerListener(toggle);
-            toggle.syncState();
-
-            NavigationView navigationView = (NavigationView) findViewById(R.id.nav_viewMensa);
-            navigationView.setNavigationItemSelectedListener(this);
-
-            mDrawerList = (ListView)findViewById(R.id.navList);
-            addDrawerItems();
-
-        }
+            }
 
         private void addDrawerItems() {
             String[] osArray = { "Android", "iOS", "Windows", "OS X", "Linux", "FreeBSD" };
@@ -106,5 +186,6 @@ public class MensaSelectActivity extends AppCompatActivity implements Navigation
             drawer.closeDrawer(GravityCompat.START);
             return true;
         }
+
     }
 

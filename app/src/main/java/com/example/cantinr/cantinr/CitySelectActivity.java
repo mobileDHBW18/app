@@ -1,5 +1,6 @@
 package com.example.cantinr.cantinr;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,22 +14,43 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
+
+import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.transform.Result;
+
+import cantinrapi.DevcantinrClient;
 
 public class CitySelectActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
+    private EditText cityEdit;
+    private Button searchButton;
+    private ListView cityListView;
+    private ArrayAdapter adapter;
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
+    Context context;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_city_select);
+
+        getSupportActionBar();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarCity);
-        toolbar.setTitle("Mensaria Metropol");
+        toolbar.setTitle("Wähle deine Stadt");
+        context = this;
         intentMain = new Intent(this, MainActivity.class);
         intentCity = new Intent(this, CitySelectActivity.class);
         intentMensa = new Intent(this, MensaSelectActivity.class);
@@ -44,6 +66,42 @@ public class CitySelectActivity extends AppCompatActivity implements NavigationV
 
         mDrawerList = (ListView)findViewById(R.id.navList);
         addDrawerItems();
+
+        cityEdit = (EditText) findViewById(R.id.cityEdit);
+        searchButton = (Button) findViewById(R.id.searchButton);
+
+        cityListView = (ListView) findViewById(R.id.cityListView);
+        ArrayList<String> list = new ArrayList<String>();
+        adapter = new ArrayAdapter(this,
+                android.R.layout.simple_list_item_1, list);
+        cityListView.setAdapter(adapter);
+
+        cityListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if (id == 0) {
+                    startActivity(intentMensa);
+                } else {
+                    Toast.makeText(context, "Bisher nur Mannheim - sorry!", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cityEdit.setText("Mannheim");
+                adapter.add("Mannheim");
+                adapter.add("Deine Stadt, bald hier");
+                adapter.notifyDataSetChanged();
+
+            }
+        });
+        //Check for cities with these names
+
+        // if nothing is found, display a message
+
+
 
     }
 
@@ -105,5 +163,6 @@ public class CitySelectActivity extends AppCompatActivity implements NavigationV
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }
 

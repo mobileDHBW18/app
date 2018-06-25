@@ -1,5 +1,6 @@
 package com.example.cantinr.cantinr;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -18,12 +19,28 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
 import com.wonderkiln.camerakit.CameraKitEventListener;
 import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, CameraKitEventListener {
@@ -33,6 +50,12 @@ public class MainActivity extends AppCompatActivity
     RecyclerAdapter adapter;
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
+    private String currentDate;
+    private String apiUrl;
+    private Context context;
+    private ArrayList<String> titles;
+    private ArrayList<String> ingrediences;
+    private ArrayList<Integer> images;
 
     Intent intentCity;
     Intent intentMensa;
@@ -50,6 +73,10 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         setTitle("Mensaria Metropol");
 
+        context = this;
+        apiUrl = "https://api.cantinr.de/v1";
+        System.out.println(apiUrl);
+
         recyclerView =
                 (RecyclerView) findViewById(R.id.recycler_view);
 
@@ -59,6 +86,49 @@ public class MainActivity extends AppCompatActivity
         adapter = new RecyclerAdapter();
         recyclerView.setAdapter(adapter);
 
+        titles = new ArrayList<String>();
+        ingrediences= new ArrayList<>();
+        images = new ArrayList<>();
+
+        currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+        String uri = null;
+        uri = String.format(apiUrl + "/meals?date=%1$s&mensa=%2$s", "2018-06-20", "DHBW Mannheim Mensaria Metropol".replace(" ", "%20"));
+        System.out.println(uri);
+
+        RequestQueue queue = Volley.newRequestQueue(context);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, uri,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            JSONArray array = new JSONArray(response);
+                            System.out.println("RESPONSE IS: ");
+                            System.out.println(response);
+                            for (int i = 0; i < array.length(); i++){
+                                JSONObject obj = array.getJSONObject(i);
+                                JSONArray responeIngrediences = obj.getJSONArray("ingrediences");
+                                String name = ingrediences.get(0).toString();
+                                String ingredience = responeIngrediences.get(1).toString();
+                                ingrediences.add(ingredience);
+                                titles.add(name);
+                                System.out.println(name);
+
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
+        adapter.setDataSet(titles, ingrediences, images);
+        adapter.notifyDataSetChanged();
 
         intentMain = getIntent();
        // image = findViewById(R.id.imageView);
