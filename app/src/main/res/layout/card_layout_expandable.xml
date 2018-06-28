@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_margin="2dp"
+    android:layout_margin="1dp"
     android:clickable="true"
     android:elevation="2dp"
     android:foreground="?selectableItemBackground"
@@ -20,8 +20,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@color/cardview_light_background"
         android:elevation="5dp"
-        android:padding="16dp">
+        android:padding="5dp">
 
         <TextView
             android:id="@+id/item_title"
@@ -36,26 +37,45 @@
 
         <TextView
             android:id="@+id/txtPreis"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/item_image"
-            android:layout_marginLeft="10dp"
-            android:layout_marginStart="22dp"
-            android:layout_marginTop="40dp"
-            android:layout_toEndOf="@+id/item_image"
+            android:layout_below="@+id/item_title"
+            android:layout_marginTop="5dp"
             android:text="2,50€"
+            android:textAlignment="center"
+            android:textColor="@color/secondaryDarkColor"
             android:textSize="24sp"
             android:textStyle="bold" />
+
+        <View
+            android:id="@+id/viewLineUpper"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@+id/item_detail"
+            android:layout_marginTop="15dp"
+            android:background="@android:color/darker_gray" />
+
+        <View
+            android:id="@+id/viewLine"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/item_detail"
+            android:layout_marginTop="90dp"
+            android:background="@android:color/darker_gray" />
 
         <TextView
             android:id="@+id/txtDurchschnitt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/item_image"
-            android:layout_marginTop="22dp"
+            android:layout_below="@+id/viewLine"
+            android:layout_marginTop="20dp"
             android:text=" Ø-Bewertung deiner Kommilitonen"
-            android:textSize="18sp" />
+            android:textAlignment="center"
+            android:textColor="@color/secondaryDarkColor"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/txtRating"
@@ -71,10 +91,10 @@
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/txtPreis"
+            android:layout_alignParentEnd="true"
             android:layout_alignTop="@+id/txtRating"
-            android:layout_marginEnd="25dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginEnd="46dp"
+            android:layout_marginTop="7dp"
             android:minLines="1"
             android:text="120 Bewertungen"
             android:textAlignment="center"
@@ -82,11 +102,12 @@
 
         <ImageView
             android:id="@+id/item_image"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_width="wrap_content"
+            android:layout_height="220dp"
             android:layout_alignParentStart="true"
-            android:layout_below="@+id/item_detail"
-            android:layout_marginTop="10dp"
+            android:layout_below="@+id/txtPreis"
+            android:layout_marginTop="15dp"
+            android:background="?android:attr/colorButtonNormal"
             android:clickable="true"
             android:src="@drawable/img2" />
 
@@ -94,12 +115,12 @@
             android:id="@+id/item_detail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/item_title"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="21dp"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/floatingActionButton"
+            android:layout_marginTop="15dp"
             android:lineSpacingExtra="2dp"
             android:textAlignment="center"
-            android:textSize="18sp"
+            android:textSize="16sp"
             tools:text="Beispiel" />
 
         <TextView
@@ -109,29 +130,32 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/imageView2"
             android:layout_marginStart="0dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="20dp"
             android:text="Deine Bewertung für das Gericht"
-            android:textAlignment="textStart"
+            android:textAlignment="center"
             android:textSize="18sp" />
 
         <RatingBar
             android:id="@+id/ratingBar4"
-            android:layout_width="240dp"
+            android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_alignParentStart="true"
             android:layout_below="@+id/txtBewertung"
-            android:layout_marginTop="15dp"
-            android:stepSize="0.5" />
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:background="@color/cardview_light_background"
+            android:stepSize="1" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/floatingActionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/txtPreis"
-            android:layout_below="@+id/item_image"
-            android:layout_marginTop="-50dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/item_image"
+            android:layout_marginEnd="1dp"
+            android:layout_marginTop="201dp"
             android:clickable="true"
-            card_view:srcCompat="@drawable/ic_menu_gallery" />
+            app:backgroundTint="@color/secondaryColor"
+            app:srcCompat="@drawable/baseline_add_a_photo_black_18dp" />
 
         <ImageView
             android:id="@+id/imageView2"
@@ -139,10 +163,113 @@
             android:layout_height="50dp"
             android:layout_alignParentStart="true"
             android:layout_below="@+id/txtDurchschnitt"
+            android:layout_marginStart="18dp"
             android:layout_marginTop="15dp"
-            card_view:srcCompat="@drawable/star" />
+            android:background="@color/cardview_light_background"
+            app:srcCompat="@drawable/starorange" />
 
+        <ImageView
+            android:id="@+id/ivVeggie"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="18dp"
+            app:srcCompat="@drawable/veggie" />
 
+        <ImageView
+            android:id="@+id/ivPig"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="18dp"
+            android:layout_toRightOf="@+id/ivCow"
+            card_view:srcCompat="@drawable/pig" />
+
+        <ImageView
+            android:id="@+id/ivCow"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="15dp"
+            android:layout_toRightOf="@+id/ivFish"
+            card_view:srcCompat="@drawable/cow" />
+
+        <ImageView
+            android:id="@+id/ivFish"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="18dp"
+            android:layout_toRightOf="@+id/ivChicken"
+            card_view:srcCompat="@drawable/fish" />
+
+        <ImageView
+            android:id="@+id/ivChicken"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="18dp"
+            card_view:srcCompat="@drawable/chicken" />
+
+        <Button
+            android:id="@+id/btChickenGrey"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/button_states"
+            android:backgroundTint="#40000000"
+            tools:clickable="false" />
+
+        <Button
+            android:id="@+id/btFishGrey"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="18dp"
+            android:layout_toRightOf="@+id/ivChicken"
+            android:background="@drawable/button_states"
+            android:backgroundTint="#40000000" />
+        <Button
+            android:id="@+id/btCowGrey"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="18dp"
+            android:layout_toRightOf="@+id/ivFish"
+            android:background="@drawable/button_states"
+            android:backgroundTint="#40000000" />
+        <Button
+            android:id="@+id/btPigGrey"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="18dp"
+            android:layout_toRightOf="@+id/ivCow"
+            android:background="@drawable/button_states"
+            android:backgroundTint="#40000000" />
+        <Button
+            android:id="@+id/btVeggieGrey"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignTop="@+id/viewLineUpper"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="18dp"
+            android:background="@drawable/button_states"
+            android:layout_alignParentEnd="true"
+            android:backgroundTint="#40000000" />
     </RelativeLayout>
 
 </android.support.v7.widget.CardView>

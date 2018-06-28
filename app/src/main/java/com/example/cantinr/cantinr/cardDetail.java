@@ -1,6 +1,9 @@
 package com.example.cantinr.cantinr;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
@@ -18,6 +21,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
 import com.wonderkiln.camerakit.CameraKitError;
@@ -35,11 +39,13 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
     RecyclerAdapterExpandable adapter;
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
-
+    RatingBar rb;
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
     Intent inPhoto;
+
+    Button btChickenGrey;
     //public Context cMain;
     // ImageView image;
     Button photo;
@@ -49,6 +55,7 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_card_detail);
+
 
         intent = getIntent();
         int pos;
@@ -61,6 +68,11 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarDetail);
         setSupportActionBar(toolbar);
         setTitle("Gerichtdetails");
+
+        rb = (RatingBar) findViewById(R.id.ratingBar4);
+        //Drawable stars = (Drawable) rb.getProgressDrawable();
+        //Drawable stars = rb.getProgressDrawable();
+        //stars.setTint(Color.YELLOW);
 
         recyclerView =
                 (RecyclerView) findViewById(R.id.recycler_view);
@@ -89,7 +101,8 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
         mDrawerList = (ListView)findViewById(R.id.navList);
         addDrawerItems();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab2);
+/*
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,7 +110,7 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
                 startActivity(inPhoto);
             }
         });
-
+*/
 
     }
 

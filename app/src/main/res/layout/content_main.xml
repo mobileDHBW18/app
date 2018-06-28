@@ -43,6 +43,7 @@
             android:layout_marginEnd="328dp"
             android:layout_marginStart="328dp"
             android:src="@drawable/ic_menu_camera"
+            app:backgroundTint="@color/secondaryColor"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
