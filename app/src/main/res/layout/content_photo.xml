@@ -46,20 +46,6 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <Button
-            android:id="@+id/button3"
-            style="@style/Widget.AppCompat.Button"
-            android:layout_width="115dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginBottom="20dp"
-            android:layout_marginStart="16dp"
-            android:elevation="3dp"
-            android:onClick="onPhotoEnd"
-            android:text="zurück"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <Button
             android:id="@+id/button2"
             android:layout_width="115dp"
             android:layout_height="wrap_content"
