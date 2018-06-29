@@ -2,8 +2,10 @@ package com.example.cantinr.cantinr;
 
 import android.content.Intent;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,10 +38,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     private String apiUrl;
     private Context context;
     private String currentDate;
+    private String jsonString;
+    private ArrayList<Integer> posList = new ArrayList<>();
 
     private ArrayList<String> titles = new ArrayList<>();
     private ArrayList<String> details = new ArrayList<>(); //{"Kartoffelstampf und Bratensoße, enthält Gluten und Schalenfrüchte", "Röstgemüse und Bratensoße, enthält Erdnüsse", "American Style, vegan und laktosefrei"};
     private ArrayList<Integer> images = new ArrayList<>(); //{ R.drawable.img1,//R.drawable.ic_launcher_background, R.drawable.img2, R.drawable.ic_launcher_background};
+    private ArrayList<Bitmap> networkImages = new ArrayList<>();
 
     class ViewHolder extends RecyclerView.ViewHolder{
 
@@ -60,7 +65,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                     (TextView)itemView.findViewById(R.id.item_detail);
 
             context = itemView.getContext();
-            currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+            /*currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
             String uri = null;
             uri = String.format(apiUrl + "/meals?date=%1$s&mensa=%2$s", "2018-06-20", "DHBW Mannheim Mensaria Metropol".replace(" ", "%20"));
             System.out.println(uri);
@@ -81,6 +86,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                                     titles.add(name);
                                     System.out.println(name);
 
+
                                 }
                             } catch (JSONException e) {
                                 e.printStackTrace();
@@ -93,7 +99,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
             });
 
             // Add the request to the RequestQueue.
-            queue.add(stringRequest);
+            queue.add(stringRequest);*/
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
@@ -105,6 +111,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
                             .setAction("Action", null).show();
                     */
                     intentDetail.putExtra("position",position);
+                    intentDetail.putExtra("jsonString", jsonString);
                     itemView.getContext().startActivity(intentDetail);
                 }
             });
@@ -123,16 +130,25 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
+        Log.d("NETWORKIMAGES", networkImages.toString());
         viewHolder.itemTitle.setText(titles.get(i));
         viewHolder.itemDetail.setText(details.get(i));
-        viewHolder.itemImage.setImageResource(images.get(i));
+        viewHolder.itemImage.setImageDrawable(null);
+        viewHolder.itemImage.setImageBitmap(networkImages.get(i));
+        //viewHolder.itemImage.setImageResource(images.get(i));
     }
 
-    public void setDataSet(ArrayList<String> mTitles, ArrayList<String> mDetails, ArrayList<Integer> mImages) {
+    public void setDataSet(ArrayList<String> mTitles, ArrayList<String> mDetails, ArrayList<Integer> mImages, ArrayList<Bitmap> mNetworkImages, ArrayList<Integer> mPos) {
         titles = mTitles;
         details = mDetails;
         images = mImages;
+        networkImages = mNetworkImages;
+        posList = mPos;
         notifyDataSetChanged();
+    }
+
+    public void setFoodData(String mJsonString) {
+        jsonString = mJsonString;
     }
 
     @Override

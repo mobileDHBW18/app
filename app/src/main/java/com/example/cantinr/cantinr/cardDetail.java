@@ -24,12 +24,18 @@ import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
 import com.wonderkiln.camerakit.CameraKitEventListener;
 import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class cardDetail extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -40,6 +46,8 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
     RatingBar rb;
+    private JSONObject obj;
+
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
@@ -60,6 +68,19 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
         intent = getIntent();
         int pos;
         pos = intent.getIntExtra("position", 0);
+        String jsonString = intent.getStringExtra("jsonString");
+        JSONArray arr = null;
+        obj = new JSONObject();
+
+        try {
+            arr = new JSONArray(jsonString);
+            System.out.println(arr);
+            obj = arr.getJSONObject(pos);
+            System.out.println(obj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         /*
         String strPos = "Die aktuelle Karte ist " + pos;
         Toast.makeText(this,strPos,
@@ -82,6 +103,9 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
 
         adapter = new RecyclerAdapterExpandable();
         recyclerView.setAdapter(adapter);
+
+        adapter.setData(obj, MainActivity.networkImages);
+        adapter.setPosition(pos);
 
         intentMain = new Intent(this, MainActivity.class);
         // image = findViewById(R.id.imageView);

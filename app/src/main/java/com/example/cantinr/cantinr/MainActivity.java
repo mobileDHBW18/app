@@ -2,10 +2,13 @@ package com.example.cantinr.cantinr;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +26,7 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.wonderkiln.camerakit.CameraKitError;
@@ -37,10 +41,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, CameraKitEventListener {
@@ -56,6 +63,10 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> titles;
     private ArrayList<String> ingrediences;
     private ArrayList<Integer> images;
+    static ArrayList<Bitmap> networkImages;
+    private ArrayList<Integer> posList;
+    static RequestQueue queue;
+    private String globalResponse;
 
     Intent intentCity;
     Intent intentMensa;
@@ -89,33 +100,85 @@ public class MainActivity extends AppCompatActivity
         titles = new ArrayList<String>();
         ingrediences= new ArrayList<>();
         images = new ArrayList<>();
+        networkImages = new ArrayList<>();
+        posList = new ArrayList<>();
+
+        final AtomicInteger requestsCounter = new AtomicInteger(0);
 
         currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         String uri = null;
-        uri = String.format(apiUrl + "/meals?date=%1$s&mensa=%2$s", "2018-06-20", "DHBW Mannheim Mensaria Metropol".replace(" ", "%20"));
+        uri = String.format(apiUrl + "/meals?date=%1$s&mensa=%2$s", "2018-06-28", "DHBW Mannheim Mensaria Metropol".replace(" ", "%20"));
         System.out.println(uri);
 
-        RequestQueue queue = Volley.newRequestQueue(context);
+        queue = Volley.newRequestQueue(context);
+        requestsCounter.incrementAndGet();
         StringRequest stringRequest = new StringRequest(Request.Method.GET, uri,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         try {
-                            JSONArray array = new JSONArray(response);
-                            System.out.println("RESPONSE IS: ");
-                            System.out.println(response);
-                            for (int i = 0; i < array.length(); i++){
-                                JSONObject obj = array.getJSONObject(i);
-                                JSONArray responeIngrediences = obj.getJSONArray("ingrediences");
-                                String name = ingrediences.get(0).toString();
-                                String ingredience = responeIngrediences.get(1).toString();
-                                ingrediences.add(ingredience);
-                                titles.add(name);
-                                System.out.println(name);
+                            globalResponse = new String(response.getBytes("ISO-8859-1"), "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
 
+                        }
+
+                        try {
+                            JSONArray array = new JSONArray(globalResponse);
+
+                            System.out.println("RESPONSE IS: ");
+                            System.out.println(globalResponse);
+                            System.out.println("ARRAY LENGTH IS " + array.length());
+                            if (array.length() > 0) {
+                                for (int i = 0; i < array.length(); i++) {
+                                    JSONObject obj = array.getJSONObject(i);
+                                    Log.d("i", String.valueOf(i));
+                                    Log.d("OBJECT", obj.toString());
+                                    JSONArray responeIngrediences = obj.getJSONArray("ingrediences");
+                                    System.out.println(responeIngrediences.toString());
+                                    String name = obj.getString("name");
+                                    String ingredience = responeIngrediences.get(1).toString();
+                                    ingrediences.add(ingredience);
+                                    titles.add(name);
+                                    System.out.println(name);
+                                    System.out.println(obj.get("pic").toString());
+                                    posList.add(Integer.valueOf(networkImages.size()));
+                                    if (obj.get("pic").toString() == "null") {
+                                        networkImages.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.img1));
+                                    } else {
+                                        //fetch images
+                                        System.out.println("AAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHH");
+                                        for (int j = 0; j < obj.getJSONArray("pic").length(); j++) {
+                                            requestsCounter.incrementAndGet();
+                                            ImageRequest imageRequest = new ImageRequest(obj.getJSONArray("pic").getString(j), new Response.Listener<Bitmap>() {
+                                                @Override
+                                                public void onResponse(Bitmap bitmap) {
+                                                    networkImages.add(bitmap);
+                                                }
+                                            }, 1024, 1024, null, null);
+                                            queue.add(imageRequest);
+                                        }
+                                    }
+                                }
+                                Log.d("IMAGES", images.toString());
+                            } else {
+                                titles.add("Keine Gerichte heute :(");
+                                ingrediences.add("Vielleicht ist die Mensa geschlossen, oder es ist Feiertag?");
+                                images.add(R.drawable.couvert);
+                                networkImages.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.couvert));
                             }
+                            Log.d("TEST", networkImages.toString());
+                            queue.addRequestFinishedListener(request -> {
+                                requestsCounter.decrementAndGet();
+
+                                if (requestsCounter.get() == 0) {
+                                    adapter.setDataSet(titles, ingrediences, images, networkImages, posList);
+                                    adapter.setFoodData(globalResponse);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
                         } catch (JSONException e) {
-                            e.printStackTrace();
+                            Log.d("ERR", e.toString());
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -127,7 +190,11 @@ public class MainActivity extends AppCompatActivity
         // Add the request to the RequestQueue.
         queue.add(stringRequest);
 
-        adapter.setDataSet(titles, ingrediences, images);
+
+        Log.d("TITLES", titles.toString());
+
+
+        adapter.setDataSet(titles, ingrediences, images, networkImages, posList);
         adapter.notifyDataSetChanged();
 
         intentMain = getIntent();
