@@ -43,7 +43,11 @@
         <activity
             android:name=".PhotoActivity"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".cardDetail" android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".cardDetail"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".galleryActivity"
+        android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

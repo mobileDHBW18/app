@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity
 
         mDrawerList = (ListView)findViewById(R.id.navList);
         addDrawerItems();
-
+        /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab2);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity
                 startActivity(inPhoto);
             }
         });
-
+        */
 
     }
 

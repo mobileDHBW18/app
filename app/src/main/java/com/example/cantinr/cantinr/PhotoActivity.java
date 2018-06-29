@@ -35,9 +35,10 @@ public class PhotoActivity extends AppCompatActivity
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
+    Intent intentDetail;
     ImageView image;
     Button bt_ok;
-    Button bt_back;
+    //Button bt_back;
     Button bt_new;
     TextView tv_Action;
     CameraView cameraView;
@@ -50,13 +51,14 @@ public class PhotoActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         setTitle("Knips ein Foto");
         intentMain = new Intent(this, MainActivity.class);
+        intentDetail = new Intent(this, cardDetail.class);
         image = findViewById(R.id.imageView);
         image.setVisibility(View.GONE);
         intentCity = new Intent(this, CitySelectActivity.class);
         intentMensa = new Intent(this, MensaSelectActivity.class);
         tv_Action = findViewById(R.id.textView3);
         bt_ok = findViewById(R.id.btOK);
-        bt_back = findViewById(R.id.button3);
+        //bt_back = findViewById(R.id.button3);
         bt_new = findViewById(R.id.button2);
         bt_new.setVisibility(View.GONE);
         bt_ok.setVisibility(View.INVISIBLE);
@@ -98,7 +100,7 @@ public class PhotoActivity extends AppCompatActivity
         //cameraView.start();
         cameraView.setVisibility(View.VISIBLE);
         bt_new.setVisibility(View.INVISIBLE);
-        bt_back.setVisibility(View.VISIBLE);
+        //bt_back.setVisibility(View.VISIBLE);
         image.setVisibility(View.INVISIBLE);
     }
 
@@ -119,7 +121,7 @@ public class PhotoActivity extends AppCompatActivity
        // bt_new.setVisibility(View.INVISIBLE);
        // bt_back.setVisibility(View.VISIBLE);
        // image.setVisibility(View.INVISIBLE);
-        startActivity(intentMain);
+        startActivity(intentDetail);
     }
 
     public void photoShot(View aView){
@@ -131,12 +133,12 @@ public class PhotoActivity extends AppCompatActivity
     public void photoOK(View aView){
         //upload photo now
         //after return to Start
-        startActivity(intentMain);
+        startActivity(intentDetail);
     }
 
     public  void newPhoto(View aView){
         image.setVisibility(View.INVISIBLE);
-        bt_back.setVisibility(View.VISIBLE);
+        //bt_back.setVisibility(View.VISIBLE);
         bt_new.setVisibility(View.GONE);
         bt_ok.setVisibility(View.GONE);
         fab.setVisibility(View.VISIBLE);
@@ -217,7 +219,7 @@ public class PhotoActivity extends AppCompatActivity
         Bitmap pic = picture.getBitmap();
         //Toast.makeText(this, "Wenn dir das Foto gefällt, kehre mit 'ok' zurück", Toast.LENGTH_SHORT).show();
         image.setImageBitmap(pic);
-        bt_back.setVisibility(View.GONE);
+       // bt_back.setVisibility(View.GONE);
         bt_new.setVisibility(View.VISIBLE);
         image.setVisibility(View.VISIBLE);
         bt_ok.setVisibility(View.VISIBLE);

@@ -34,18 +34,23 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
         public TextView itemDetail;
         public FloatingActionButton fab;
 
-        public Intent intentDetail, inPhoto;
+        public Intent intentDetail, inPhoto, inGallery;
         //Intent inPhoto;
 
         public ViewHolder(View itemView) {
             super(itemView);
-
             intentDetail= new Intent(itemView.getContext(), cardDetail.class);
-            itemImage = (ImageView)itemView.findViewById(R.id.item_image);
             itemTitle = (TextView)itemView.findViewById(R.id.item_title);
-
             inPhoto= new Intent(itemView.getContext(), PhotoActivity.class);
-
+            inGallery= new Intent(itemView.getContext(), galleryActivity.class);
+            itemImage = (ImageView)itemView.findViewById(R.id.item_image);
+            itemImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //cameraView.captureImage();
+                    view.getContext().startActivity(inGallery);
+                }
+            });
             Button btChickenGrey, btCowGrey, btPigGrey, btFishGrey, btVeggieGrey;
 
             btChickenGrey = (Button) itemView.findViewById(R.id.btChickenGrey);
