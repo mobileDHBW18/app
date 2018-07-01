@@ -21,8 +21,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.amazonaws.mobileconnectors.apigateway.ApiClientFactory;
-
 import java.util.ArrayList;
 import java.util.List;
 

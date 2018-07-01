@@ -1,11 +1,14 @@
 package com.example.cantinr.cantinr;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -29,6 +33,7 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -46,8 +51,11 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
 
     private JSONObject data;
 
-    private ArrayList<Bitmap> networkImages = new ArrayList<>();
+    static ArrayList<Bitmap> networkImages = new ArrayList<>();
     private int pos;
+    private Context context;
+    private Float saved;
+
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -60,6 +68,8 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
         public TextView ratingsTotal;
         // public FloatingActionButton fab2;
         public FloatingActionButton fab;
+        public RatingBar ratingBar;
+        private SharedPreferences prefs;
 
         public Intent intentDetail, inPhoto, inGallery;
         //Intent inPhoto;
@@ -73,6 +83,22 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
             itemImage = (ImageView)itemView.findViewById(R.id.item_image);
             ratingsTotal = (TextView) itemView.findViewById(R.id.txtTotalRatings);
             itemRating = (TextView) itemView.findViewById(R.id.txtRating);
+            itemPrice = (TextView) itemView.findViewById(R.id.txtPreis);
+            ratingBar = (RatingBar) itemView.findViewById(R.id.ratingBar4);
+            context = itemView.getContext();
+            prefs = context.getSharedPreferences("PREFS", Context.MODE_PRIVATE);
+
+            try {
+                saved = prefs.getFloat(data.getString("id"), -1.0f);
+                Log.d("SAVED", saved.toString());
+                if (saved != -1.0f) {
+                    ratingBar.setRating(saved);
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             itemImage.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -102,41 +128,60 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
                 @Override
                 public void onClick(View view) {
                     //cameraView.captureImage();
-                    view.getContext().startActivity(inPhoto);
+                    try {
+                        inPhoto.putExtra("id", data.getString("id"));
+                        view.getContext().startActivity(inPhoto);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
             });
 
             itemDetail =
                     (TextView) itemView.findViewById(R.id.item_detail);
 
-            ((RatingBar) itemView.findViewById(R.id.ratingBar4)).setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
+            ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
                 @Override
                 public void onRatingChanged(RatingBar ratingBar, float v, boolean b) {
-                    // make Call to API and send rating
+                                        // make Call to API and send rating
                     try {
-                        String uri = String.format(apiUrl + "/meals/%1$s", data.getString("id"));
-                        JSONObject js = new JSONObject();
-                        js.put("rating", v);
-                        System.out.println(js.toString());
-                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, uri, js,
-                                new Response.Listener<JSONObject>()
-                                {
-                                    @Override
-                                    public void onResponse(JSONObject response) {
-                                        System.out.println(response.toString());
-                                        data = response;
-                                        notifyDataSetChanged();
+                        saved = prefs.getFloat(data.getString("id"), -1);
+                        if (saved == -1.0f) {
+                            // not voted yet, send vote and save value
+                            String uri = String.format(apiUrl + "/meals/%1$s", data.getString("id"));
+                            JSONObject js = new JSONObject();
+                            js.put("rating", v);
+                            System.out.println(js.toString());
+                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, uri, js,
+                                    new Response.Listener<JSONObject>()
+                                    {
+                                        @Override
+                                        public void onResponse(JSONObject response) {
+                                            System.out.println(response.toString());
+                                            data = response;
+                                            notifyDataSetChanged();
+                                        }
+                                    },
+                                    new Response.ErrorListener()
+                                    {
+                                        @Override
+                                        public void onErrorResponse(VolleyError error) {
+                                        }
                                     }
-                                },
-                                new Response.ErrorListener()
-                                {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                    }
-                                }
-                        );
+                            );
+                            MainActivity.queue.add(jsonObjectRequest);
+                            saved = v;
+                            SharedPreferences.Editor prefEditor = prefs.edit();
+                            prefEditor.putFloat(data.getString("id"), v);
+                            prefEditor.commit();
+                        } else {
+                            // already voted, say nay
+                            Toast.makeText(context, "Du hast dieses Gericht schon bewertet!",
+                                    Toast.LENGTH_LONG).show();
+                            ratingBar.setRating(saved);
+                        }
 
-                        MainActivity.queue.add(jsonObjectRequest);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -168,12 +213,21 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
             }
             viewHolder.itemDetail.setText(details);
             viewHolder.itemPrice.setText(String.format("%.2f", data.getDouble("price")) + "€"); // String.valueOf(data.getDouble("price")) + "€");
-            viewHolder.itemImage.setImageResource(images[position]);
-            viewHolder.itemImage.setImageBitmap(networkImages.get(pos));
-            viewHolder.itemRating.setText(String.valueOf(data.getDouble("rating")));
+            //viewHolder.itemImage.setImageResource(images[position]);
+            viewHolder.itemImage.setImageBitmap(networkImages.get(0));
+            viewHolder.itemRating.setText(String.format("%.1f", data.getDouble("rating")));
             Double ratingsCount = data.getDouble("ratingsNum");
             viewHolder.ratingsTotal.setText(String.valueOf(ratingsCount.intValue()) + " Bewertungen");
             //viewHolder.fab2.setVisibility(View.VISIBLE);
+
+            // show the icons depending on the values present
+//            Iterator<?> keys = data.getJSONObject("categories").keys();
+//
+//            while (keys.hasNext()) {
+//
+//            }
+
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

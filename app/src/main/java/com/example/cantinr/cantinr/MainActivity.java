@@ -63,10 +63,12 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<String> titles;
     private ArrayList<String> ingrediences;
     private ArrayList<Integer> images;
-    static ArrayList<Bitmap> networkImages;
+    static ArrayList<ArrayList<Bitmap>> networkImages;
     private ArrayList<Integer> posList;
     static RequestQueue queue;
     private String globalResponse;
+    private ArrayList<Bitmap> currentPictureArrayList;
+
 
     Intent intentCity;
     Intent intentMensa;
@@ -130,6 +132,8 @@ public class MainActivity extends AppCompatActivity
                             System.out.println("ARRAY LENGTH IS " + array.length());
                             if (array.length() > 0) {
                                 for (int i = 0; i < array.length(); i++) {
+                                    networkImages.add(new ArrayList<Bitmap>());
+                                    currentPictureArrayList = networkImages.get(i);
                                     JSONObject obj = array.getJSONObject(i);
                                     Log.d("i", String.valueOf(i));
                                     Log.d("OBJECT", obj.toString());
@@ -143,16 +147,16 @@ public class MainActivity extends AppCompatActivity
                                     System.out.println(obj.get("pic").toString());
                                     posList.add(Integer.valueOf(networkImages.size()));
                                     if (obj.get("pic").toString() == "null") {
-                                        networkImages.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.img1));
+                                        networkImages.get(i).add(BitmapFactory.decodeResource(context.getResources(), R.drawable.img1));
                                     } else {
                                         //fetch images
-                                        System.out.println("AAAAAAAAAAAAAAAHHHHHHHHHHHHHHHHHHHHHH");
+                                        ArrayList<Bitmap> temp = networkImages.get(i);
                                         for (int j = 0; j < obj.getJSONArray("pic").length(); j++) {
                                             requestsCounter.incrementAndGet();
                                             ImageRequest imageRequest = new ImageRequest(obj.getJSONArray("pic").getString(j), new Response.Listener<Bitmap>() {
                                                 @Override
                                                 public void onResponse(Bitmap bitmap) {
-                                                    networkImages.add(bitmap);
+                                                    temp.add(bitmap);
                                                 }
                                             }, 1024, 1024, null, null);
                                             queue.add(imageRequest);
@@ -161,10 +165,11 @@ public class MainActivity extends AppCompatActivity
                                 }
                                 Log.d("IMAGES", images.toString());
                             } else {
+                                networkImages.add(new ArrayList<Bitmap>());
                                 titles.add("Keine Gerichte heute :(");
                                 ingrediences.add("Vielleicht ist die Mensa geschlossen, oder es ist Feiertag?");
                                 images.add(R.drawable.couvert);
-                                networkImages.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.couvert));
+                                networkImages.get(0).add(BitmapFactory.decodeResource(context.getResources(), R.drawable.couvert));
                             }
                             Log.d("TEST", networkImages.toString());
                             queue.addRequestFinishedListener(request -> {

@@ -48,6 +48,9 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".galleryActivity"
         android:theme="@style/AppTheme.NoActionBar" />
+        <service
+        android:name="com.onecode.s3.service.S3UploadService"
+        android:exported="false" />
     </application>
 
 </manifest>

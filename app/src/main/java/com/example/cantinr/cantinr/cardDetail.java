@@ -104,7 +104,7 @@ public class cardDetail extends AppCompatActivity implements NavigationView.OnNa
         adapter = new RecyclerAdapterExpandable();
         recyclerView.setAdapter(adapter);
 
-        adapter.setData(obj, MainActivity.networkImages);
+        adapter.setData(obj, MainActivity.networkImages.get(pos));
         adapter.setPosition(pos);
 
         intentMain = new Intent(this, MainActivity.class);

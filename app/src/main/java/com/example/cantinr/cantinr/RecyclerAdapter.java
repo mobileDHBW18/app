@@ -44,7 +44,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
     private ArrayList<String> titles = new ArrayList<>();
     private ArrayList<String> details = new ArrayList<>(); //{"Kartoffelstampf und Bratensoße, enthält Gluten und Schalenfrüchte", "Röstgemüse und Bratensoße, enthält Erdnüsse", "American Style, vegan und laktosefrei"};
     private ArrayList<Integer> images = new ArrayList<>(); //{ R.drawable.img1,//R.drawable.ic_launcher_background, R.drawable.img2, R.drawable.ic_launcher_background};
-    private ArrayList<Bitmap> networkImages = new ArrayList<>();
+    private ArrayList<ArrayList<Bitmap>> networkImages = new ArrayList<>();
 
     class ViewHolder extends RecyclerView.ViewHolder{
 
@@ -134,11 +134,11 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ViewHo
         viewHolder.itemTitle.setText(titles.get(i));
         viewHolder.itemDetail.setText(details.get(i));
         viewHolder.itemImage.setImageDrawable(null);
-        viewHolder.itemImage.setImageBitmap(networkImages.get(i));
+        viewHolder.itemImage.setImageBitmap(networkImages.get(i).get(0));
         //viewHolder.itemImage.setImageResource(images.get(i));
     }
 
-    public void setDataSet(ArrayList<String> mTitles, ArrayList<String> mDetails, ArrayList<Integer> mImages, ArrayList<Bitmap> mNetworkImages, ArrayList<Integer> mPos) {
+    public void setDataSet(ArrayList<String> mTitles, ArrayList<String> mDetails, ArrayList<Integer> mImages, ArrayList<ArrayList<Bitmap>> mNetworkImages, ArrayList<Integer> mPos) {
         titles = mTitles;
         details = mDetails;
         images = mImages;

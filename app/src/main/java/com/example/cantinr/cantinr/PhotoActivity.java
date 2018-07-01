@@ -1,6 +1,9 @@
 package com.example.cantinr.cantinr;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -10,6 +13,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +23,33 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.amazonaws.AmazonClientException;
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.mobile.client.AWSMobileClient;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
+import com.amazonaws.services.securitytoken.model.Credentials;
+import com.amazonaws.services.securitytoken.model.GetSessionTokenRequest;
+import com.amazonaws.services.securitytoken.model.GetSessionTokenResult;
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.NoConnectionError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.TimeoutError;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 
 import com.wonderkiln.camerakit.CameraKitError;
 import com.wonderkiln.camerakit.CameraKitEvent;
@@ -26,12 +58,30 @@ import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+
+import static android.provider.Contacts.SettingsColumns.KEY;
+
 public class PhotoActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, CameraKitEventListener {
 
     //set up new branch
     private ListView mDrawerList;
     private ArrayAdapter<String> mAdapter;
+    private SharedPreferences prefs;
+    private String id;
+    private Bitmap pic;
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
@@ -65,6 +115,8 @@ public class PhotoActivity extends AppCompatActivity
         fab = findViewById(R.id.fab2);
         cameraView = (CameraView) findViewById(R.id.camera);
         cameraView.addCameraKitListener(this);
+
+        id = getIntent().getStringExtra("id");
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layoutPhoto);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -132,8 +184,40 @@ public class PhotoActivity extends AppCompatActivity
 
     public void photoOK(View aView){
         //upload photo now
-        //after return to Start
-        startActivity(intentDetail);
+        String currentDate = new SimpleDateFormat("yyyy-MM-dd-hhmmss").format(new Date());
+//        String url = "https://s3.eu-central-1.amazonaws.com/cantinr-dev-photos/" + id + "/" + currentDate + ".jpg";
+        final ProgressDialog loading = ProgressDialog.show(this,"Uploading...","Please wait...",false,false);
+//        Log.d("URL", url);
+
+        try {
+            // Create file because fuck it, lets be dumb and just take files
+            File f = new File(this.getCacheDir(), currentDate + ".png");
+            f.createNewFile();
+
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            pic.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+            byte[] bitmapdata = bos.toByteArray();
+
+            //write the bytes in file
+            FileOutputStream fos = new FileOutputStream(f);
+            fos.write(bitmapdata);
+            fos.flush();
+            fos.close();
+
+            BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAJQI2IRGGDKEH4Z4A", "bDxtC8deJ8jJuQpXGGHWupyjsuEZATg6dA8IgIap");
+            AmazonS3Client s3Client = new AmazonS3Client(credentials);
+            Log.d("Liste", s3Client.listBuckets().toString());
+            s3Client.putObject("cantinr-dev-photos", id + "/" + f.getName(), f);
+            loading.dismiss();
+
+            f.delete();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
     public  void newPhoto(View aView){
@@ -216,7 +300,7 @@ public class PhotoActivity extends AppCompatActivity
     @Override
     public void onImage(CameraKitImage picture) {
         picture.getJpeg();
-        Bitmap pic = picture.getBitmap();
+        pic = picture.getBitmap();
         //Toast.makeText(this, "Wenn dir das Foto gefällt, kehre mit 'ok' zurück", Toast.LENGTH_SHORT).show();
         image.setImageBitmap(pic);
        // bt_back.setVisibility(View.GONE);
@@ -234,4 +318,5 @@ public class PhotoActivity extends AppCompatActivity
     public void onVideo(CameraKitVideo cameraKitVideo) {
 
     }
+
 }
