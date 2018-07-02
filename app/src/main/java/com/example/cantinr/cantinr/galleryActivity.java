@@ -82,6 +82,8 @@ public class galleryActivity extends AppCompatActivity
 
         adapter = new RecyclerAdapterGallery();
         recyclerView.setAdapter(adapter);
+        Log.d("LENGTH", String.valueOf(networkImages.size()));
+        System.out.println(String.valueOf(networkImages.size()));
 
         adapter.setImages(networkImages);
         adapter.notifyDataSetChanged();

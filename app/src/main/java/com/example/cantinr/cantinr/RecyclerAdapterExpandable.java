@@ -3,10 +3,11 @@ package com.example.cantinr.cantinr;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,23 +19,24 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amazonaws.auth.policy.Resource;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
-import com.github.aakira.expandablelayout.ExpandableRelativeLayout;
-import com.google.gson.JsonObject;
+import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DecimalFormat;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.example.cantinr.cantinr.galleryActivity.*;
 
 /**
  * Created by D064040 on 14.06.2018.
@@ -51,11 +53,18 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
 
     private JSONObject data;
 
+    static ArrayList<Bitmap> updatedNetworkImages = new ArrayList<>();
     static ArrayList<Bitmap> networkImages = new ArrayList<>();
     private int pos;
     private Context context;
     private Float saved;
+    private String globalResponse;
 
+    private ImageView ivChicken;
+    private ImageView ivCow;
+    private ImageView ivPig;
+    private ImageView ivVeggie;
+    private ImageView ivFish;
 
     class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -106,22 +115,12 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
                     view.getContext().startActivity(inGallery);
                 }
             });
-            Button btChickenGrey, btCowGrey, btPigGrey, btFishGrey, btVeggieGrey;
 
-            btChickenGrey = (Button) itemView.findViewById(R.id.btChickenGrey);
-            btCowGrey = (Button) itemView.findViewById(R.id.btCowGrey);
-            btPigGrey = (Button) itemView.findViewById(R.id.btPigGrey);
-            btVeggieGrey = (Button) itemView.findViewById(R.id.btVeggieGrey);
-            btFishGrey= (Button) itemView.findViewById(R.id.btFishGrey);
-
-            btChickenGrey.setEnabled(false);
-            btCowGrey.setEnabled(false);
-            btPigGrey.setEnabled(false);
-            btFishGrey.setEnabled(false);
-            btVeggieGrey.setEnabled(false);
-
-            //set to #40000000 for label no & #00ffffff for label yes
-            btChickenGrey.setBackgroundColor(Color.parseColor("#00ffffff"));
+            ivChicken = itemView.findViewById(R.id.ivChicken);
+            ivCow = itemView.findViewById(R.id.ivCow);
+            ivPig = itemView.findViewById(R.id.ivPig);
+            ivVeggie = itemView.findViewById(R.id.ivVeggie);
+            ivFish = itemView.findViewById(R.id.ivFish);
 
             fab = (FloatingActionButton) itemView.findViewById(R.id.floatingActionButton);
             fab.setOnClickListener(new View.OnClickListener() {
@@ -221,11 +220,36 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
             //viewHolder.fab2.setVisibility(View.VISIBLE);
 
             // show the icons depending on the values present
-//            Iterator<?> keys = data.getJSONObject("categories").keys();
-//
-//            while (keys.hasNext()) {
-//
-//            }
+            JSONObject icons = data.getJSONObject("categories");
+            if (icons.getBoolean("veg")) {
+                ivVeggie.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_vegetable));
+            } else {
+                ivVeggie.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_vegetable_non));
+            }
+
+            if (icons.getBoolean("chicken")) {
+                ivChicken.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_chicken));
+            } else {
+                ivChicken.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_chicken_non));
+            }
+
+            if (icons.getBoolean("beef")) {
+                ivCow.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_cow));
+            } else {
+                ivCow.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_cow_non));
+            }
+
+            if (icons.getBoolean("fish")) {
+                ivFish.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_fish));
+            } else {
+                ivFish.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_fish_non));
+            }
+
+            if (icons.getBoolean("pig")) {
+                ivPig.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_pig));
+            } else {
+                ivPig.setImageDrawable(context.getResources().getDrawable(R.drawable.noun_pig_non));
+            }
 
 
         } catch (JSONException e) {
@@ -246,4 +270,73 @@ public class RecyclerAdapterExpandable extends RecyclerView.Adapter<RecyclerAdap
     public void setPosition(int mPos) {
         pos = mPos;
     }
+
+    public void updateImages(String id) {
+        String apiUrl = "https://api.cantinr.de/v1";
+        String uri = apiUrl + "/meals/" + id;
+
+        final AtomicInteger requestsCounter = new AtomicInteger(0);
+
+        updatedNetworkImages.clear();
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, uri,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            globalResponse = new String(response.getBytes("ISO-8859-1"), "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+
+                        }
+
+                        try {
+                            JSONArray array = new JSONArray(globalResponse);
+
+                            System.out.println("RESPONSE IS: ");
+                            System.out.println(globalResponse);
+                            System.out.println("ARRAY LENGTH IS " + array.length());
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject obj = array.getJSONObject(i);
+                                Log.d("i", String.valueOf(i));
+                                Log.d("OBJECT", obj.toString());
+                                System.out.println(obj.get("pic").toString());
+                                if (obj.get("pic").toString() == "null") {
+                                    updatedNetworkImages.add(BitmapFactory.decodeResource(context.getResources(), R.drawable.img1));
+                                } else {
+                                    //fetch images
+                                    for (int j = 0; j < obj.getJSONArray("pic").length(); j++) {
+                                        requestsCounter.incrementAndGet();
+                                        ImageRequest imageRequest = new ImageRequest(obj.getJSONArray("pic").getString(j), new Response.Listener<Bitmap>() {
+                                            @Override
+                                            public void onResponse(Bitmap bitmap) {
+                                                updatedNetworkImages.add(bitmap);
+                                            }
+                                        }, 1024, 1024, null, null);
+                                        MainActivity.queue.add(imageRequest);
+                                    }
+                                }
+                            }
+                            Log.d("IMAGES", updatedNetworkImages.toString());
+
+                            MainActivity.queue.addRequestFinishedListener(request -> {
+                                requestsCounter.decrementAndGet();
+
+                                if (requestsCounter.get() == 0) {
+                                    networkImages = updatedNetworkImages;
+                                    notifyDataSetChanged();
+                                }
+                            });
+
+                        } catch (JSONException e) {
+                            Log.d("ERR", e.toString());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        });
+
+    }
+
 }

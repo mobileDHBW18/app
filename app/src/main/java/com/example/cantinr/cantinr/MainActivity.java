@@ -2,10 +2,10 @@ package com.example.cantinr.cantinr;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -41,13 +41,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, CameraKitEventListener {
@@ -68,7 +65,6 @@ public class MainActivity extends AppCompatActivity
     static RequestQueue queue;
     private String globalResponse;
     private ArrayList<Bitmap> currentPictureArrayList;
-
 
     Intent intentCity;
     Intent intentMensa;
@@ -105,96 +101,14 @@ public class MainActivity extends AppCompatActivity
         networkImages = new ArrayList<>();
         posList = new ArrayList<>();
 
-        final AtomicInteger requestsCounter = new AtomicInteger(0);
-
         currentDate = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
         String uri = null;
         uri = String.format(apiUrl + "/meals?date=%1$s&mensa=%2$s", "2018-06-28", "DHBW Mannheim Mensaria Metropol".replace(" ", "%20"));
         System.out.println(uri);
 
         queue = Volley.newRequestQueue(context);
-        requestsCounter.incrementAndGet();
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, uri,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        try {
-                            globalResponse = new String(response.getBytes("ISO-8859-1"), "UTF-8");
-                        } catch (UnsupportedEncodingException e) {
 
-                        }
-
-                        try {
-                            JSONArray array = new JSONArray(globalResponse);
-
-                            System.out.println("RESPONSE IS: ");
-                            System.out.println(globalResponse);
-                            System.out.println("ARRAY LENGTH IS " + array.length());
-                            if (array.length() > 0) {
-                                for (int i = 0; i < array.length(); i++) {
-                                    networkImages.add(new ArrayList<Bitmap>());
-                                    currentPictureArrayList = networkImages.get(i);
-                                    JSONObject obj = array.getJSONObject(i);
-                                    Log.d("i", String.valueOf(i));
-                                    Log.d("OBJECT", obj.toString());
-                                    JSONArray responeIngrediences = obj.getJSONArray("ingrediences");
-                                    System.out.println(responeIngrediences.toString());
-                                    String name = obj.getString("name");
-                                    String ingredience = responeIngrediences.get(1).toString();
-                                    ingrediences.add(ingredience);
-                                    titles.add(name);
-                                    System.out.println(name);
-                                    System.out.println(obj.get("pic").toString());
-                                    posList.add(Integer.valueOf(networkImages.size()));
-                                    if (obj.get("pic").toString() == "null") {
-                                        networkImages.get(i).add(BitmapFactory.decodeResource(context.getResources(), R.drawable.img1));
-                                    } else {
-                                        //fetch images
-                                        ArrayList<Bitmap> temp = networkImages.get(i);
-                                        for (int j = 0; j < obj.getJSONArray("pic").length(); j++) {
-                                            requestsCounter.incrementAndGet();
-                                            ImageRequest imageRequest = new ImageRequest(obj.getJSONArray("pic").getString(j), new Response.Listener<Bitmap>() {
-                                                @Override
-                                                public void onResponse(Bitmap bitmap) {
-                                                    temp.add(bitmap);
-                                                }
-                                            }, 1024, 1024, null, null);
-                                            queue.add(imageRequest);
-                                        }
-                                    }
-                                }
-                                Log.d("IMAGES", images.toString());
-                            } else {
-                                networkImages.add(new ArrayList<Bitmap>());
-                                titles.add("Keine Gerichte heute :(");
-                                ingrediences.add("Vielleicht ist die Mensa geschlossen, oder es ist Feiertag?");
-                                images.add(R.drawable.couvert);
-                                networkImages.get(0).add(BitmapFactory.decodeResource(context.getResources(), R.drawable.couvert));
-                            }
-                            Log.d("TEST", networkImages.toString());
-                            queue.addRequestFinishedListener(request -> {
-                                requestsCounter.decrementAndGet();
-
-                                if (requestsCounter.get() == 0) {
-                                    adapter.setDataSet(titles, ingrediences, images, networkImages, posList);
-                                    adapter.setFoodData(globalResponse);
-                                    adapter.notifyDataSetChanged();
-                                }
-                            });
-
-                        } catch (JSONException e) {
-                            Log.d("ERR", e.toString());
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-            }
-        });
-
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
-
+        updateData(uri);
 
         Log.d("TITLES", titles.toString());
 
@@ -340,5 +254,91 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onVideo(CameraKitVideo cameraKitVideo) {
 
+    }
+
+    public void updateData(String uri) {
+        final AtomicInteger requestsCounter = new AtomicInteger(0);
+
+        requestsCounter.incrementAndGet();
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, uri,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        try {
+                            globalResponse = new String(response.getBytes("ISO-8859-1"), "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+
+                        }
+
+                        try {
+                            JSONArray array = new JSONArray(globalResponse);
+
+                            System.out.println("RESPONSE IS: ");
+                            System.out.println(globalResponse);
+                            System.out.println("ARRAY LENGTH IS " + array.length());
+                            if (array.length() > 0) {
+                                for (int i = 0; i < array.length(); i++) {
+                                    networkImages.add(new ArrayList<Bitmap>());
+                                    currentPictureArrayList = networkImages.get(i);
+                                    JSONObject obj = array.getJSONObject(i);
+                                    Log.d("i", String.valueOf(i));
+                                    Log.d("OBJECT", obj.toString());
+                                    JSONArray responeIngrediences = obj.getJSONArray("ingrediences");
+                                    System.out.println(responeIngrediences.toString());
+                                    String name = obj.getString("name");
+                                    String ingredience = responeIngrediences.get(1).toString();
+                                    ingrediences.add(ingredience);
+                                    titles.add(name);
+                                    System.out.println(name);
+                                    System.out.println(obj.get("pic").toString());
+                                    posList.add(Integer.valueOf(networkImages.size()));
+                                    if (obj.get("pic").toString() == "null") {
+                                        networkImages.get(i).add(BitmapFactory.decodeResource(context.getResources(), R.drawable.img1));
+                                    } else {
+                                        //fetch images
+                                        ArrayList<Bitmap> temp = networkImages.get(i);
+                                        for (int j = 0; j < obj.getJSONArray("pic").length(); j++) {
+                                            requestsCounter.incrementAndGet();
+                                            ImageRequest imageRequest = new ImageRequest(obj.getJSONArray("pic").getString(j), new Response.Listener<Bitmap>() {
+                                                @Override
+                                                public void onResponse(Bitmap bitmap) {
+                                                    temp.add(bitmap);
+                                                }
+                                            }, 1024, 1024, null, null);
+                                            queue.add(imageRequest);
+                                        }
+                                    }
+                                }
+                                Log.d("IMAGES", images.toString());
+                            } else {
+                                networkImages.add(new ArrayList<Bitmap>());
+                                titles.add("Keine Gerichte heute :(");
+                                ingrediences.add("Vielleicht ist die Mensa geschlossen, oder es ist Feiertag?");
+                                images.add(R.drawable.couvert);
+                                networkImages.get(0).add(BitmapFactory.decodeResource(context.getResources(), R.drawable.couvert));
+                            }
+                            Log.d("TEST", networkImages.toString());
+                            queue.addRequestFinishedListener(request -> {
+                                requestsCounter.decrementAndGet();
+
+                                if (requestsCounter.get() == 0) {
+                                    adapter.setDataSet(titles, ingrediences, images, networkImages, posList);
+                                    adapter.setFoodData(globalResponse);
+                                    adapter.notifyDataSetChanged();
+                                }
+                            });
+
+                        } catch (JSONException e) {
+                            Log.d("ERR", e.toString());
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 }

@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,9 +21,6 @@ import java.util.ArrayList;
 
 public class RecyclerAdapterGallery extends RecyclerView.Adapter<RecyclerAdapterGallery.ViewHolder> {
 
-    private String[] titles = {"Hähnchenbrust mit"};
-
-    private int[] images = { R.drawable.img1};
     private ArrayList<Bitmap> networkImages;
 
     class ViewHolder extends RecyclerView.ViewHolder{
@@ -59,11 +57,12 @@ public class RecyclerAdapterGallery extends RecyclerView.Adapter<RecyclerAdapter
 
     @Override
     public int getItemCount() {
-        return titles.length;
+        return networkImages.size();
     }
 
     public void setImages(ArrayList<Bitmap> mImages) {
         networkImages = mImages;
+        Log.d("LENGTH", String.valueOf(networkImages.size()));
         notifyDataSetChanged();
     }
 

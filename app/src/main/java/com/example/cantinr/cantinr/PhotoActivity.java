@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -29,11 +30,14 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobile.client.AWSMobileClient;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.securitytoken.AWSSecurityTokenServiceClient;
 import com.amazonaws.services.securitytoken.model.Credentials;
@@ -58,6 +62,7 @@ import com.wonderkiln.camerakit.CameraKitImage;
 import com.wonderkiln.camerakit.CameraKitVideo;
 import com.wonderkiln.camerakit.CameraView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,11 +70,20 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 
 import static android.provider.Contacts.SettingsColumns.KEY;
 
@@ -82,6 +96,10 @@ public class PhotoActivity extends AppCompatActivity
     private SharedPreferences prefs;
     private String id;
     private Bitmap pic;
+    private String globalResponse;
+
+    private Context context;
+
     Intent intentCity;
     Intent intentMensa;
     Intent intentMain;
@@ -99,6 +117,7 @@ public class PhotoActivity extends AppCompatActivity
         setContentView(R.layout.activity_photo);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbarPhoto);
         setSupportActionBar(toolbar);
+        context = this;
         setTitle("Knips ein Foto");
         intentMain = new Intent(this, MainActivity.class);
         intentDetail = new Intent(this, cardDetail.class);
@@ -185,38 +204,46 @@ public class PhotoActivity extends AppCompatActivity
     public void photoOK(View aView){
         //upload photo now
         String currentDate = new SimpleDateFormat("yyyy-MM-dd-hhmmss").format(new Date());
-//        String url = "https://s3.eu-central-1.amazonaws.com/cantinr-dev-photos/" + id + "/" + currentDate + ".jpg";
-        final ProgressDialog loading = ProgressDialog.show(this,"Uploading...","Please wait...",false,false);
-//        Log.d("URL", url);
+        String url = "https://s3.eu-central-1.amazonaws.com/cantinr-dev-photos/" + id + "/" + currentDate + ".jpg";
+        final ProgressDialog loading = ProgressDialog.show(this,"Bitte warten...","Bild wird verarbeitet...",false,false);
+        Log.d("URL", url);
 
-        try {
             // Create file because fuck it, lets be dumb and just take files
-            File f = new File(this.getCacheDir(), currentDate + ".png");
-            f.createNewFile();
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            pic.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
-            byte[] bitmapdata = bos.toByteArray();
+        Thread thread = new Thread(new Runnable() {
 
-            //write the bytes in file
-            FileOutputStream fos = new FileOutputStream(f);
-            fos.write(bitmapdata);
-            fos.flush();
-            fos.close();
+            @Override
+            public void run() {
+                try  {
+                    File f = new File(context.getCacheDir(), currentDate + ".jpg");
+                    f.createNewFile();
 
-            BasicAWSCredentials credentials = new BasicAWSCredentials("AKIAJQI2IRGGDKEH4Z4A", "bDxtC8deJ8jJuQpXGGHWupyjsuEZATg6dA8IgIap");
-            AmazonS3Client s3Client = new AmazonS3Client(credentials);
-            Log.d("Liste", s3Client.listBuckets().toString());
-            s3Client.putObject("cantinr-dev-photos", id + "/" + f.getName(), f);
-            loading.dismiss();
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    loading.setMessage("Bild wird komprimiert...");
+                    pic.compress(Bitmap.CompressFormat.JPEG, 50, bos);
+                    byte[] bitmapdata = bos.toByteArray();
 
-            f.delete();
+                    //write the bytes in file
+                    loading.setMessage("Bild wird gespeichert...");
+                    FileOutputStream fos = new FileOutputStream(f);
+                    fos.write(bitmapdata);
+                    fos.flush();
+                    fos.close();
 
+                    loading.setMessage("Bild wird hochgeladen...");
+                    uploadImage(f, url);
+                    loading.dismiss();
+                    f.delete();
+//                    onBackPressed();
+//                    goBack();
+                    finish();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        thread.start();
 
     }
 
@@ -317,6 +344,41 @@ public class PhotoActivity extends AppCompatActivity
     @Override
     public void onVideo(CameraKitVideo cameraKitVideo) {
 
+    }
+
+    public static JSONObject uploadImage(File sourceFile, String uploadUrl) {
+
+        try {
+            Log.d("OKHTTP", "File...::::" + sourceFile + " : " + sourceFile.exists());
+
+            final MediaType MEDIA_TYPE = MediaType.parse("image/jpeg");
+
+
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .addFormDataPart("uploaded_file", sourceFile.getName(), RequestBody.create(MEDIA_TYPE, sourceFile))
+                    .addFormDataPart("result", "my_image")
+                    .build();
+
+            okhttp3.Request request = new okhttp3.Request.Builder()
+                    .url(uploadUrl)
+                    .put(RequestBody.create(MEDIA_TYPE, sourceFile) )
+                    .build();
+
+            OkHttpClient client = new OkHttpClient();
+            okhttp3.Response response = client.newCall(request).execute();
+            return new JSONObject(response.body().toString());
+
+        } catch (UnknownHostException | UnsupportedEncodingException e) {
+            Log.e("OKHTTP", "Error: " + e.getLocalizedMessage());
+        } catch (Exception e) {
+            Log.e("OKHTTP", "Other Error: " + e.getLocalizedMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public void goBack() {
+        super.onBackPressed();
     }
 
 }

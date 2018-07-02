@@ -51,6 +51,7 @@ dependencies {
     implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.7@aar') { transitive = true }
     implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
     implementation 'com.amazonaws:aws-android-sdk-cognito:2.6.+'
-
+    compile 'com.amazonaws:aws-android-sdk-cognitoidentityprovider:2.6.+'
+    compile 'com.squareup.okhttp3:okhttp:3.4.1'
 }
 
